@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import TimerWithProgress from "./components/TimerWithProgress";
+import Stats from "./components/Stats";
 import useNotificationSound from "./hooks/useNotificationSound";
 import { useTheme } from "./hooks/useTheme";
 
@@ -20,6 +21,14 @@ function App() {
   // Notification sound
   const playSound = useNotificationSound();
 
+  // Increment completed focus session
+  const incrementSession = () => {
+    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    const data = JSON.parse(localStorage.getItem("sessions")) || {};
+    data[today] = (data[today] || 0) + 1;
+    localStorage.setItem("sessions", JSON.stringify(data));
+  };
+
   // Timer countdown effect
   useEffect(() => {
     let timer;
@@ -28,6 +37,9 @@ function App() {
     } else if (timeLeft === 0) {
       // Play notification sound
       playSound();
+
+      // Increment session if focus session completed
+      if (isFocusMode) incrementSession();
 
       // Switch mode automatically
       setIsFocusMode((prev) => !prev);
@@ -83,6 +95,9 @@ function App() {
         <button onClick={resetTimer}>Reset</button>
         <button onClick={switchMode}>Switch Mode</button>
       </div>
+
+      {/* Daily Statistics */}
+      <Stats />
     </div>
   );
 }
