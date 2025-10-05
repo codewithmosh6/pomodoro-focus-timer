@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import TimerWithProgress from "./components/TimerWithProgress";
 import Stats from "./components/Stats";
+import Settings from "./components/Settings";
 import useNotificationSound from "./hooks/useNotificationSound";
 import { useTheme } from "./hooks/useTheme";
 
 function App() {
-  // Timer durations (in minutes)
+  // Timer durations (minutes)
   const focusDuration = 25;
   const breakDuration = 5;
 
-  // Theme state
+  // Theme
   const [theme, toggleTheme] = useTheme();
 
   // Timer state
@@ -18,18 +19,23 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(focusDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
 
+  // Auto-start toggle
+  const [autoStart, setAutoStart] = useState(
+    JSON.parse(localStorage.getItem("autoStart")) ?? true
+  );
+
   // Notification sound
   const playSound = useNotificationSound();
 
   // Increment completed focus session
   const incrementSession = () => {
-    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    const today = new Date().toISOString().slice(0, 10);
     const data = JSON.parse(localStorage.getItem("sessions")) || {};
     data[today] = (data[today] || 0) + 1;
     localStorage.setItem("sessions", JSON.stringify(data));
   };
 
-  // Timer countdown effect
+  // Timer countdown effect with auto-switch
   useEffect(() => {
     let timer;
     if (isRunning && timeLeft > 0) {
@@ -41,10 +47,15 @@ function App() {
       // Increment session if focus session completed
       if (isFocusMode) incrementSession();
 
-      // Switch mode automatically
+      // Display mode switch message
+      alert(isFocusMode ? "Break Time! 🎉" : "Focus Time! 💪");
+
+      // Switch mode
       setIsFocusMode((prev) => !prev);
       setTimeLeft(isFocusMode ? breakDuration * 60 : focusDuration * 60);
-      setIsRunning(false); // stop timer after switching
+
+      // Auto-start next session if enabled
+      setIsRunning(autoStart);
     }
 
     return () => clearInterval(timer);
@@ -55,6 +66,7 @@ function App() {
     focusDuration,
     breakDuration,
     playSound,
+    autoStart,
   ]);
 
   // Control handlers
@@ -80,9 +92,12 @@ function App() {
         </button>
       </div>
 
+      {/* Settings */}
+      <Settings autoStart={autoStart} setAutoStart={setAutoStart} />
+
       <p className="mode">{isFocusMode ? "Focus Mode" : "Break Mode"}</p>
 
-      {/* Timer with Circular Progress Bar */}
+      {/* Timer */}
       <TimerWithProgress
         timeLeft={timeLeft}
         totalTime={isFocusMode ? focusDuration * 60 : breakDuration * 60}
@@ -96,7 +111,7 @@ function App() {
         <button onClick={switchMode}>Switch Mode</button>
       </div>
 
-      {/* Daily Statistics */}
+      {/* Daily Stats */}
       <Stats />
     </div>
   );
