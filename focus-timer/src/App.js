@@ -2,13 +2,17 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import TimerWithProgress from "./components/TimerWithProgress";
 import useNotificationSound from "./hooks/useNotificationSound";
+import { useTheme } from "./hooks/useTheme";
 
 function App() {
-  // Duration settings (can be replaced later with Settings component)
-  const focusDuration = 25; // minutes
-  const breakDuration = 5; // minutes
+  // Timer durations (in minutes)
+  const focusDuration = 25;
+  const breakDuration = 5;
 
-  // Theme (for future dark/light integration)
+  // Theme state
+  const [theme, toggleTheme] = useTheme();
+
+  // Timer state
   const [isFocusMode, setIsFocusMode] = useState(true);
   const [timeLeft, setTimeLeft] = useState(focusDuration * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -22,13 +26,13 @@ function App() {
     if (isRunning && timeLeft > 0) {
       timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     } else if (timeLeft === 0) {
-      // Play notification sound when timer ends
+      // Play notification sound
       playSound();
 
       // Switch mode automatically
       setIsFocusMode((prev) => !prev);
       setTimeLeft(isFocusMode ? breakDuration * 60 : focusDuration * 60);
-      setIsRunning(false); // stop after switching mode
+      setIsRunning(false); // stop timer after switching
     }
 
     return () => clearInterval(timer);
@@ -56,6 +60,14 @@ function App() {
   return (
     <div className={`app-container ${isFocusMode ? "focus" : "break"}`}>
       <h1 className="title">Focus Timer</h1>
+
+      {/* Theme toggle */}
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={toggleTheme}>
+          {theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+        </button>
+      </div>
+
       <p className="mode">{isFocusMode ? "Focus Mode" : "Break Mode"}</p>
 
       {/* Timer with Circular Progress Bar */}
