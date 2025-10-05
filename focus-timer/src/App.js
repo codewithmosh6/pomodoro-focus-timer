@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import TimerWithProgress from "./components/TimerWithProgress";
+
 
 function App() {
   const FOCUS_TIME = 25 * 60; // 25 minutes
@@ -40,16 +42,16 @@ function App() {
       <h1 className="title">Focus Timer</h1>
       <p className="mode">{isFocusMode ? "Focus Mode" : "Break Mode"}</p>
 
-      <div className="timer">{formatTime(timeLeft)}</div>
+      <TimerWithProgress
+        timeLeft={timeLeft}
+        totalTime={isFocusMode ? focusDuration * 60 : breakDuration * 60}
+        isFocusMode={isFocusMode}
+      />
 
       <div className="controls">
-        <button onClick={toggleTimer}>
-          {isRunning ? "Pause" : "Start"}
-        </button>
+        <button onClick={toggleTimer}>{isRunning ? "Pause" : "Start"}</button>
         <button onClick={resetTimer}>Reset</button>
-        <button onClick={() => setIsFocusMode((m) => !m)}>
-          Switch Mode
-        </button>
+        <button onClick={() => setIsFocusMode((m) => !m)}>Switch Mode</button>
       </div>
     </div>
   );
