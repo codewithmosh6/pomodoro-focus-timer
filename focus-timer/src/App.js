@@ -87,7 +87,7 @@ function App() {
 
       {/* Theme toggle */}
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={toggleTheme}>
+        <button className="theme-toggle" onClick={toggleTheme}>
           {theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
         </button>
       </div>
@@ -112,7 +112,7 @@ function App() {
       </div>
 
       {/* Daily Stats */}
-      <Stats />
+      <Stats className="stats" />
     </div>
   );
 }
